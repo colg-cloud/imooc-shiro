@@ -22,3 +22,5 @@
 3. SecurityManager认证
 4. Realm验证
 5. Authenticator认证
+
+### 3. Shiro 加密

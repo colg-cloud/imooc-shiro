@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	   					   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+						   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+						   http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 组件扫描 扫描所有标记@Controller类 -->
+    <context:component-scan base-package="com.yycg.controller" />
+
+    <!-- 定义JSP文件的位置 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <!-- 上传文件拦截，设置最大上传文件大小   10M=10*1024*1024(B)=10485760 bytes -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10485760" />
+    </bean>
+
+    <mvc:annotation-driven>
+        <!-- 使用FastJson解析json -->
+        <mvc:message-converters register-defaults="true">
+            <bean id="fastJsonHttpMessageConverter" class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+                <property name="fastJsonConfig" ref="fastJsonConfig" />
+            </bean>
+        </mvc:message-converters>
+
+        <!-- 自定义参数解析器，针对不同对象中相同的属性名注入不同的值 -->
+        <mvc:argument-resolvers>
+            <bean class="com.yycg.annotation.BeanArgumentResolver" />
+        </mvc:argument-resolvers>
+    </mvc:annotation-driven>
+    <bean id="fastJsonConfig" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+        <property name="serializerFeatures">
+            <array value-type="com.alibaba.fastjson.serializer.SerializerFeature">
+                <value>WriteDateUseDateFormat</value>
+                <value>WriteMapNullValue</value>
+                <value>WriteNullListAsEmpty</value>
+                <value>WriteNullStringAsEmpty</value>
+                <value>DisableCircularReferenceDetect</value>
+            </array>
+        </property>
+    </bean>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <!-- 把静态资源的请求转由Web容器默认的Servlet来处理 -->
+    <mvc:default-servlet-handler />
+
+</beans>
